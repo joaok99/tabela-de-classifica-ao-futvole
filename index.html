@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futevôlei Tournament Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl flex items-center">
+                    <img 
+                        src="https://res.cloudinary.com/lptennis/image/upload/c_fit,h_250,q_auto:low,w_250/v1725025260/xixkkcnrowmn25aamyo3.webp?_a=BACAGSBn"
+                        alt="Logo do torneio"
+                        class="h-10 w-10 object-contain rounded-md shadow-md"
+                    >
+                </span>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-amber-400 to-emerald-400 bg-clip-text text-transparent">
+                    1º Torneio de Futevôlei da Arena Alto PR
+                </h1>
+            </div>
+            <nav class="flex space-x-1 sm:space-x-2">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="tab-btn px-3 py-2 rounded-md text-sm font-medium bg-emerald-600 text-white transition-all">
+                    Dashboard
+                </button>
+                <button onclick="switchTab('duplas')" id="btn-duplas" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
+                    Módulo Duplas
+                </button>
+                <button onclick="switchTab('jogos')" id="btn-jogos" class="tab-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition-all">
+                    Módulo Jogos / Chaves
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="tab-dashboard" class="tab-content space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md flex items-center space-x-4">
+                    <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg text-2xl">🏆</div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Status Campeonato</p>
+                        <p id="dash-status" class="text-lg font-bold text-slate-200">Em Andamento</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg text-2xl">👫</div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Duplas</p>
+                        <p id="dash-total-duplas" class="text-2xl font-bold text-slate-200">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md flex items-center space-x-4">
+                    <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg text-2xl">⚽</div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Jogos</p>
+                        <p id="dash-total-jogos" class="text-2xl font-bold text-slate-200">0</p>
+                    </div>
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md flex items-center space-x-4">
+                    <div class="p-3 bg-purple-500/10 text-purple-400 rounded-lg text-2xl">⚡</div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Jogos Concluídos</p>
+                        <p id="dash-jogos-concluidos" class="text-2xl font-bold text-slate-200">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-slate-800 to-slate-800/50 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-amber-400">
+                    <span>👑</span> <span>Classificação Final por Categoria</span>
+                </h3>
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Selecione a Categoria para ver o Pódio</label>
+                    <select id="podium-category-filter" onchange="renderPodium()" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full max-w-xs focus:outline-none focus:border-emerald-500 text-white">
+                        <option value="Aprendiz / Iniciante">🏐 Aprendiz / Iniciante</option>
+                        <option value="Feminino">👩 Feminino</option>
+                        <option value="Misto">👫 Misto</option>
+                        <option value="Intermediário">⚡ Intermediário</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <div class="bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-amber-400"></div>
+                        <span class="text-3xl mb-2">🏆</span>
+                        <h4 class="text-sm font-semibold uppercase text-slate-400">Campeão</h4>
+                        <p id="podium-1st" class="text-lg font-bold text-amber-400 mt-1">A definir</p>
+                    </div>
+                    <div class="bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-slate-400"></div>
+                        <span class="text-3xl mb-2">🥈</span>
+                        <h4 class="text-sm font-semibold uppercase text-slate-400">Vice-campeão</h4>
+                        <p id="podium-2nd" class="text-lg font-bold text-slate-300 mt-1">A definir</p>
+                    </div>
+                    <div class="bg-slate-900/60 border border-slate-700/60 rounded-xl p-4 flex flex-col items-center text-center relative overflow-hidden">
+                        <div class="absolute top-0 inset-x-0 h-1 bg-amber-700"></div>
+                        <span class="text-3xl mb-2">🥉</span>
+                        <h4 class="text-sm font-semibold uppercase text-slate-400">Terceiro Lugar</h4>
+                        <p id="podium-3rd" class="text-lg font-bold text-amber-600 mt-1">A definir</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-duplas" class="tab-content hidden space-y-6">
+            <div class="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-md">
+                <div class="w-full md:w-auto flex flex-col sm:flex-row gap-4 flex-grow max-w-3xl">
+                    <div class="flex-grow">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Pesquisar Dupla ou Atleta</label>
+                        <input type="text" id="search-dupla" oninput="renderDuplasTable()" placeholder="Ex: Vini..." class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:border-emerald-500 text-white placeholder-slate-400">
+                    </div>
+                    <div class="w-full sm:w-64">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Filtrar Categoria</label>
+                        <select id="filter-dupla-categoria" onchange="renderDuplasTable()" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:border-emerald-500 text-white">
+                            <option value="Todos">Todas as Categorias</option>
+                            <option value="Aprendiz / Iniciante">🏐 Aprendiz / Iniciante</option>
+                            <option value="Feminino">👩 Feminino</option>
+                            <option value="Misto">👫 Misto</option>
+                            <option value="Intermediário">⚡ Intermediário</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="toggleModal('modal-add-dupla', true)" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors whitespace-nowrap shadow-sm">
+                    + Adicionar Nova Dupla
+                </button>
+            </div>
+
+            <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-slate-700 text-left text-sm">
+                        <thead class="bg-slate-700/50 text-slate-300 uppercase text-xs font-semibold tracking-wider">
+                            <tr>
+                                <th class="px-6 py-3">ID Dupla</th>
+                                <th class="px-6 py-3">Nome da Equipe / Dupla</th>
+                                <th class="px-6 py-3">Jogador 1</th>
+                                <th class="px-6 py-3">Jogador 2</th>
+                                <th class="px-6 py-3">Categoria</th>
+                                <th class="px-6 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-duplas-body" class="divide-y divide-slate-700/60 bg-slate-800 text-slate-300">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-jogos" class="tab-content hidden space-y-6">
+            
+            <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
+                <div class="w-full sm:w-64">
+                    <label class="block text-xs font-semibold text-amber-400 uppercase mb-1">1. Escolha a Categoria para Trabalhar</label>
+                    <select id="select-tournament-cat" onchange="onCategoryChange()" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full focus:outline-none focus:border-emerald-500 text-white font-bold">
+                        <option value="Aprendiz / Iniciante">🏐 Aprendiz / Iniciante</option>
+                        <option value="Feminino">👩 Feminino</option>
+                        <option value="Misto">👫 Misto</option>
+                        <option value="Intermediário">⚡ Intermediário</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md space-y-4 lg:col-span-1">
+                    <h3 class="text-sm font-bold uppercase text-emerald-400 border-b border-slate-700 pb-2 flex items-center space-x-2">
+                        <span>🛠️</span> <span>Montar Confronto Manual</span>
+                    </h3>
+                    <p class="text-xs text-slate-400">Use esta área para casar os jogos exatamente como você quiser.</p>
+                    
+                    <form id="form-manual-match" onsubmit="submitManualMatch(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Dupla A</label>
+                            <select id="manual-dupla-A" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500"></select>
+                        </div>
+                        <div class="text-center text-xs font-bold text-slate-500">VS</div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Dupla B</label>
+                            <select id="manual-dupla-B" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Fase do Jogo</label>
+                            <select id="manual-fase" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500">
+                                <option value="Primeira Fase">Primeira Fase</option>
+                                <option value="Quartas de Final">Quartas de Final</option>
+                                <option value="Semifinal">Semifinal</option>
+                                <option value="Disputa de 3º Lugar">Disputa de 3º Lugar</option>
+                                <option value="Final">Final</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow-md">
+                            + Adicionar este Jogo na Tela
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-md flex flex-col justify-between lg:col-span-2">
+                    <div>
+                        <h3 class="text-sm font-bold uppercase text-amber-500 border-b border-slate-700 pb-2 flex items-center space-x-2">
+                            <span>⚡</span> <span>Gerador de Chaveamento Automático</span>
+                        </h3>
+                        <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                            Caso mude de ideia e queira que o sistema organize tudo sozinho em árvore tradicional (4, 8, 16 ou 32 duplas), clique no botão abaixo. Vagas sem dupla recebem o status **BYE** automaticamente.
+                        </p>
+                        <p class="text-xs text-rose-400 mt-1 font-semibold">⚠️ Atenção: Gerar a chave automática apagará os jogos manuais criados nesta categoria.</p>
+                    </div>
+                    <div class="pt-4">
+                        <button onclick="generateTournamentBracket()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold px-5 py-2.5 rounded-lg text-xs transition-all shadow-md w-full sm:w-auto">
+                            Gerar / Resetar Chave Automática
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4 pt-4">
+                <div class="flex items-center justify-between border-l-4 border-emerald-500 pl-3">
+                    <h3 class="text-xl font-bold text-slate-200">Painel de Partidas</h3>
+                    <button onclick="clearAllMatchesFromCategory()" class="text-xs text-rose-400 hover:underline">Limpar todos os jogos desta categoria</button>
+                </div>
+                <div id="bracket-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4">
+                    </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 border-t border-slate-700 mt-auto py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            &copy;  2026   Todos os direitos reservados.
+            PROJETO CRIADO E ASSINADO POR JOAO NICOLAS — . 
+        </div>
+    </footer>
+
+    <div id="modal-add-dupla" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-slate-800 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-slate-700">
+                <div class="bg-slate-800 px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg font-bold text-slate-200 mb-4">Adicionar Nova Dupla</h3>
+                    <form id="form-add-dupla" onsubmit="submitNewDupla(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Jogador 1</label>
+                            <input type="text" id="input-p1" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Jogador 2</label>
+                            <input type="text" id="input-p2" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase mb-1">Categoria</label>
+                            <select id="select-cat" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm w-full text-white focus:outline-none focus:border-emerald-500">
+                                <option value="Aprendiz / Iniciante">🏐 Aprendiz / Iniciante</option>
+                                <option value="Feminino">👩 Feminino</option>
+                                <option value="Misto">👫 Misto</option>
+                                <option value="Intermediário">⚡ Intermediário</option>
+                            </select>
+                        </div>
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                            <button type="button" onclick="toggleModal('modal-add-dupla', false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Cancelar</button>
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Salvar Dupla</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-match-score" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-slate-800 rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border border-slate-700">
+                <div class="bg-slate-800 px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg font-bold text-slate-200 mb-1">Lançar Resultado</h3>
+                    <p id="modal-match-phase" class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-4"></p>
+                    <form id="form-match-score" onsubmit="submitMatchScore(event)" class="space-y-4">
+                        <input type="hidden" id="input-match-id">
+                        
+                        <div class="grid grid-cols-3 items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/60">
+                            <label id="label-duplaA" class="text-sm font-bold text-slate-300 truncate col-span-2"></label>
+                            <input type="number" id="input-scoreA" min="0" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-center text-base font-bold text-white focus:outline-none focus:border-emerald-500 w-full">
+                        </div>
+
+                        <div class="flex justify-center text-xs font-bold text-slate-500 uppercase py-1">VS</div>
+
+                        <div class="grid grid-cols-3 items-center gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/60">
+                            <label id="label-duplaB" class="text-sm font-bold text-slate-300 truncate col-span-2"></label>
+                            <input type="number" id="input-scoreB" min="0" required class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-center text-base font-bold text-white focus:outline-none focus:border-emerald-500 w-full">
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-slate-700">
+                            <button type="button" onclick="toggleModal('modal-match-score', false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Cancelar</button>
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Confirmar Placar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            duplas: [],
+            jogos: []
+        };
+
+        const initialData = {
+            "Aprendiz / Iniciante": [
+                "Vini e Aluno", "Anderson e Joel", "Alex e Goveia", "Polemito e Luiz",
+                "Vander e Léo", "salah e Filipe", "Sagrado e Diogo", "José Guilherme e Miguel",
+                "Camargo e Thiago", "Nicolas e Leo Erzinger", "Kurth e Gago", "Pedro S e Luiz R"
+            ],
+            "Feminino": [
+                "Fer Ortiz e Lê Bosio", "Verônica e Nathalia (Vini)", "Dayane e Priscilla", "Grazy e Karol"
+            ],
+            "Misto": [
+                "Fer Ortiz e Pereira", "Bruna e Luizinho", "Vini e Nathalia", "Lê Bosio e José Guilherme",
+                "Nicolas e Paulinha01 pro", "Gabi e Wellington", "Geovanna e Caju", "Jamily e Joel Tiago",
+                "Marcin e Stefany", "Lara e Goveia", "Gabi Vieira e Gustavo"
+            ],
+            "Intermediário": [
+                "Vini e Sávio", "Pereira e parceiro", "Jota e Markin", "Anderson e Manaus",
+                "Goveia e parceiro", "Nicolas e Gabriel Ramos", "Jhonatan e parceiro", "Néverton e parceiro",
+                "Rafa e Bombeiro", "Caju e Wellington", "Joel e Hector", "Salah e dupla",
+                "Dudu e gui", "Francez e Gustavo"
+            ]
+        };
+
+        function initDatabase() {
+            let currentId = 1;
+            for (const [categoria, listaDuplas] of Object.entries(initialData)) {
+                listaDuplas.forEach(nomeDupla => {
+                    const partes = nomeDupla.split(" e ");
+                    const jogador1 = partes[0] || nomeDupla;
+                    const jogador2 = partes[1] || "Parceiro";
+
+                    state.duplas.push({
+                        id: String(currentId).padStart(2, '0'),
+                        nome: nomeDupla,
+                        jogador1: jogador1,
+                        jogador2: jogador2,
+                        categoria: categoria,
+                        status: "Ativo"
+                    });
+                    currentId++;
+                });
+            }
+        }
+
+        const TournamentService = {
+            getDuplas: () => state.duplas,
+            getJogos: () => state.jogos,
+            addDupla: (dupla) => {
+                state.duplas.push(dupla);
+            },
+            updateJogoScore: (matchId, scoreA, scoreB) => {
+                const jogo = state.jogos.find(j => j.id === matchId);
+                if (!jogo) return;
+
+                jogo.placarA = scoreA;
+                jogo.placarB = scoreB;
+                jogo.vencedor = scoreA > scoreB ? jogo.duplaA : jogo.duplaB;
+
+                // Fluxo para chaves automáticas (se houver id encadeado)
+                if (jogo.proximoJogoId) {
+                    const proximoJogo = state.jogos.find(j => j.id === jogo.proximoJogoId);
+                    if (proximoJogo) {
+                        if (jogo.proximaPosicaoSlot === 'A') {
+                            proximoJogo.duplaA = jogo.vencedor;
+                        } else {
+                            proximoJogo.duplaB = jogo.vencedor;
+                        }
+                    }
+                }
+                checkPodiumDefinitions(jogo.category);
+            }
+        };
+
+        // --- SISTEMA EXCLUSIVO DE CRIAÇÃO MANUAL DE JOGOS ---
+        function onCategoryChange() {
+            populateManualSelects();
+            renderJogosSection();
+        }
+
+        function populateManualSelects() {
+            const categoria = document.getElementById('select-tournament-cat').value;
+            const duplasCategoria = state.duplas.filter(d => d.categoria === categoria && d.status === "Ativo");
+
+            const selectA = document.getElementById('manual-dupla-A');
+            const selectB = document.getElementById('manual-dupla-B');
+
+            selectA.innerHTML = '';
+            selectB.innerHTML = '';
+
+            duplasCategoria.forEach(d => {
+                const optA = document.createElement('option');
+                optA.value = d.nome;
+                optA.innerText = d.nome;
+                selectA.appendChild(optA);
+
+                const optB = document.createElement('option');
+                optB.value = d.nome;
+                optB.innerText = d.nome;
+                selectB.appendChild(optB);
+            });
+            
+            // Pré-seleciona itens diferentes para evitar espelhamento inicial simples
+            if(selectB.options.length > 1) {
+                selectB.selectedIndex = 1;
+            }
+        }
+
+        function submitManualMatch(event) {
+            event.preventDefault();
+            const categoria = document.getElementById('select-tournament-cat').value;
+            const dA = document.getElementById('manual-dupla-A').value;
+            const dB = document.getElementById('manual-dupla-B').value;
+            const fase = document.getElementById('manual-fase').value;
+
+            if(dA === dB) {
+                alert("Uma equipe não pode jogar contra ela mesma! Escolha duplas diferentes.");
+                return;
+            }
+
+            const matchId = `M-MANUAL-${Date.now()}`;
+            const novoJogo = {
+                id: matchId,
+                category: categoria,
+                phase: fase,
+                duplaA: dA,
+                duplaB: dB,
+                placarA: null,
+                placarB: null,
+                vencedor: null,
+                proximoJogoId: null,
+                proximaPosicaoSlot: null
+            };
+
+            state.jogos.push(novoJogo);
+            renderJogosSection();
+            updateDashboardMetrics();
+        }
+
+        function clearAllMatchesFromCategory() {
+            const categoria = document.getElementById('select-tournament-cat').value;
+            state.jogos = state.jogos.filter(j => j.category !== categoria);
+            renderJogosSection();
+            updateDashboardMetrics();
+        }
+
+        // --- GERADOR AUTOMÁTICO (COMO ALTERNATIVA) ---
+        function generateTournamentBracket() {
+            const categoria = document.getElementById('select-tournament-cat').value;
+            state.jogos = state.jogos.filter(j => j.category !== categoria);
+
+            const duplasCategoria = state.duplas.filter(d => d.categoria === categoria && d.status === "Ativo");
+            const totalDuplas = duplasCategoria.length;
+
+            if(totalDuplas < 2) {
+                alert("Quantidade de duplas insuficiente nesta categoria.");
+                return;
+            }
+
+            let bracketSize = 4;
+            if (totalDuplas > 16) bracketSize = 32;
+            else if (totalDuplas > 8) bracketSize = 16;
+            else if (totalDuplas > 4) bracketSize = 8;
+
+            let competitors = duplasCategoria.map(d => d.nome);
+            while(competitors.length < bracketSize) {
+                competitors.push("BYE");
+            }
+
+            let phases = [];
+            if(bracketSize === 32) phases = ["Trinta e Dois avos", "Oitavas de Final", "Quartas de Final", "Semifinal", "Final"];
+            else if(bracketSize === 16) phases = ["Primeira Fase", "Quartas de Final", "Semifinal", "Final"];
+            else if(bracketSize === 8) phases = ["Quartas de Final", "Semifinal", "Final"];
+            else if(bracketSize === 4) phases = ["Semifinal", "Final"];
+
+            let matchIndex = 1;
+            let currentRoundCompetitorsCount = bracketSize;
+            let previousRoundMatches = [];
+
+            for (let r = phases.length - 1; r >= 0; r--) {
+                const phaseName = phases[r];
+                const matchesInRound = currentRoundCompetitorsCount / 2;
+                let roundMatchesGenerated = [];
+
+                for (let m = 0; m < matchesInRound; m++) {
+                    const matchId = `M-${categoria.replace(/\s+/g, '')}-${r}-${matchIndex++}`;
+                    let dA = r === 0 ? competitors[m * 2] : "";
+                    let dB = r === 0 ? competitors[m * 2 + 1] : "";
+
+                    let proximoJogoId = null;
+                    let proximaPosicaoSlot = null;
+
+                    if (previousRoundMatches.length > 0) {
+                        const targetMatchIndex = Math.floor(m / 2);
+                        proximoJogoId = previousRoundMatches[targetMatchIndex].id;
+                        proximaPosicaoSlot = (m % 2 === 0) ? 'A' : 'B';
+                    }
+
+                    const novoJogo = {
+                        id: matchId,
+                        category: categoria,
+                        phase: phaseName,
+                        duplaA: dA,
+                        duplaB: dB,
+                        placarA: null,
+                        placarB: null,
+                        vencedor: null,
+                        proximoJogoId: proximoJogoId,
+                        proximaPosicaoSlot: proximaPosicaoSlot
+                    };
+
+                    roundMatchesGenerated.push(novoJogo);
+                    state.jogos.push(novoJogo);
+                }
+
+                if (phaseName === "Final") {
+                    state.jogos.push({
+                        id: `M-${categoria.replace(/\s+/g, '')}-3L`,
+                        category: categoria,
+                        phase: "Disputa de 3º Lugar",
+                        duplaA: "A definir",
+                        duplaB: "A definir",
+                        placarA: null,
+                        placarB: null,
+                        vencedor: null
+                    });
+                }
+                previousRoundMatches = roundMatchesGenerated;
+                currentRoundCompetitorsCount = matchesInRound;
+            }
+
+            // Trata as passagens de BYE automáticas de forma direta
+            state.jogos.filter(j => j.category === categoria && j.phase === phases[0]).forEach(j => {
+                if(j.duplaA === 'BYE' || j.duplaB === 'BYE') {
+                    if(j.duplaA === 'BYE') TournamentService.updateJogoScore(j.id, 0, 18);
+                    else TournamentService.updateJogoScore(j.id, 18, 0);
+                }
+            });
+
+            renderJogosSection();
+            updateDashboardMetrics();
+        }
+
+        function checkPodiumDefinitions(categoria) {
+            const finalMatch = state.jogos.find(j => j.category === categoria && j.phase === "Final");
+            const disputaTerceiro = state.jogos.find(j => j.category === categoria && j.phase === "Disputa de 3º Lugar");
+            const currentFilteredCat = document.getElementById('podium-category-filter').value;
+            
+            if(categoria !== currentFilteredCat) return;
+
+            if (finalMatch && finalMatch.vencedor) {
+                document.getElementById('podium-1st').innerText = finalMatch.vencedor;
+                document.getElementById('podium-2nd').innerText = (finalMatch.vencedor === finalMatch.duplaA) ? finalMatch.duplaB : finalMatch.duplaA;
+            } else {
+                document.getElementById('podium-1st').innerText = "A definir";
+                document.getElementById('podium-2nd').innerText = "A definir";
+            }
+
+            if (disputaTerceiro && disputaTerceiro.vencedor) {
+                document.getElementById('podium-3rd').innerText = disputaTerceiro.vencedor;
+            } else {
+                document.getElementById('podium-3rd').innerText = "A definir";
+            }
+        }
+
+        function renderPodium() {
+            const currentFilteredCat = document.getElementById('podium-category-filter').value;
+            checkPodiumDefinitions(currentFilteredCat);
+        }
+
+        // --- CONTROLADORES DA VIEW / TABS ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-700');
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabName}`).classList.add('bg-emerald-600', 'text-white');
+
+            if(tabName === 'dashboard') updateDashboardMetrics();
+            if(tabName === 'duplas') renderDuplasTable();
+            if(tabName === 'jogos') onCategoryChange();
+        }
+
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if(show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function updateDashboardMetrics() {
+            const totalDuplas = state.duplas.length;
+            const totalJogos = state.jogos.length;
+            const concluidos = state.jogos.filter(j => j.vencedor !== null).length;
+
+            document.getElementById('dash-total-duplas').innerText = totalDuplas;
+            document.getElementById('dash-total-jogos').innerText = totalJogos;
+            document.getElementById('dash-jogos-concluidos').innerText = concluidos;
+
+            const statusLabel = document.getElementById('dash-status');
+            if (totalJogos === 0) statusLabel.innerText = "Em Planejamento";
+            else if (concluidos === totalJogos) statusLabel.innerText = "Finalizado";
+            else statusLabel.innerText = "Em Andamento";
+
+            renderPodium();
+        }
+
+        function renderDuplasTable() {
+            const tbody = document.getElementById('table-duplas-body');
+            tbody.innerHTML = '';
+
+            const searchTerm = document.getElementById('search-dupla').value.toLowerCase();
+            const filterCat = document.getElementById('filter-dupla-categoria').value;
+
+            let filteredList = state.duplas.filter(dupla => {
+                const matchesSearch = dupla.nome.toLowerCase().includes(searchTerm) || 
+                                      dupla.jogador1.toLowerCase().includes(searchTerm) || 
+                                      dupla.jogador2.toLowerCase().includes(searchTerm);
+                const matchesCategory = (filterCat === "Todos") || (dupla.categoria === filterCat);
+                return matchesSearch && matchesCategory;
+            });
+
+            if(filteredList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500 font-medium">Nenhuma dupla com esse nome.</td></tr>`;
+                return;
+            }
+
+            filteredList.forEach(dupla => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-700/30 transition-colors border-b border-slate-700/40";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-xs text-amber-400 font-semibold">${dupla.id}</td>
+                    <td class="px-6 py-4 font-bold text-slate-200">${dupla.nome}</td>
+                    <td class="px-6 py-4">${dupla.jogador1}</td>
+                    <td class="px-6 py-4">${dupla.jogador2}</td>
+                    <td class="px-6 py-4 text-xs"><span class="px-2 py-1 bg-slate-900 border border-slate-600 rounded-full text-slate-300 font-medium">${dupla.categoria}</span></td>
+                    <td class="px-6 py-4 text-xs"><span class="px-2 py-1 rounded-md font-bold bg-emerald-500/10 text-emerald-400">${dupla.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderJogosSection() {
+            const container = document.getElementById('bracket-container');
+            container.innerHTML = '';
+
+            const categoria = document.getElementById('select-tournament-cat').value;
+            const jogosCategoria = state.jogos.filter(j => j.category === categoria);
+
+            if(jogosCategoria.length === 0) {
+                container.className = "block w-full text-center py-12 text-slate-500 border-2 border-dashed border-slate-700 rounded-xl";
+                container.innerHTML = `<p class="text-base font-semibold">Nenhum confronto montado nesta categoria ainda.</p><p class="text-xs mt-1">Monte uma partida no formulário ao lado esquerdo.</p>`;
+                return;
+            }
+            container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4";
+
+            const matchesByPhase = {};
+            jogosCategoria.forEach(jogo => {
+                if(!matchesByPhase[jogo.phase]) matchesByPhase[jogo.phase] = [];
+                matchesByPhase[jogo.phase].push(jogo);
+            });
+
+            const phaseOrder = ["Primeira Fase", "Quartas de Final", "Semifinal", "Disputa de 3º Lugar", "Final", "Trinta e Dois avos", "Oitavas de Final"];
+            
+            phaseOrder.forEach(phaseKey => {
+                if(!matchesByPhase[phaseKey]) return;
+
+                const column = document.createElement('div');
+                column.className = "space-y-4 min-w-[260px] bg-slate-900/40 p-3 rounded-xl border border-slate-800/80";
+                column.innerHTML = `<h4 class="text-xs font-bold uppercase text-amber-500 tracking-wider mb-2 border-b border-slate-700/60 pb-2 text-center">${phaseKey}</h4>`;
+
+                matchesByPhase[phaseKey].forEach(jogo => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800 border border-slate-700 rounded-xl p-3 shadow-md space-y-2 hover:border-slate-600 transition-all";
+                    
+                    const pA = jogo.placarA !== null ? jogo.placarA : "-";
+                    const pB = jogo.placarB !== null ? jogo.placarB : "-";
+                    
+                    const isWinnerA = jogo.vencedor && jogo.vencedor === jogo.duplaA;
+                    const isWinnerB = jogo.vencedor && jogo.vencedor === jogo.duplaB;
+
+                    card.innerHTML = `
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-sm p-1.5 rounded ${isWinnerA ? 'bg-emerald-500/10 font-bold text-emerald-400' : 'text-slate-300'}">
+                                <span class="truncate pr-2">${jogo.duplaA || 'A definir'}</span>
+                                <span class="font-mono text-xs px-1.5 py-0.5 bg-slate-900 rounded">${pA}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm p-1.5 rounded ${isWinnerB ? 'bg-emerald-500/10 font-bold text-emerald-400' : 'text-slate-300'}">
+                                <span class="truncate pr-2">${jogo.duplaB || 'A definir'}</span>
+                                <span class="font-mono text-xs px-1.5 py-0.5 bg-slate-900 rounded">${pB}</span>
+                            </div>
+                        </div>
+                        ${jogo.duplaA !== 'BYE' && jogo.duplaB !== 'BYE' ? `
+                            <button onclick="openScoreModal('${jogo.id}')" class="w-full mt-2 text-center text-xs bg-slate-700 hover:bg-emerald-600 hover:text-white text-slate-300 py-1.5 rounded font-medium transition-all block">
+                                Lançar Placar
+                            </button>
+                        ` : ''}
+                    `;
+                    column.appendChild(card);
+                });
+                container.appendChild(column);
+            });
+        }
+
+        function openScoreModal(matchId) {
+            const jogo = state.jogos.find(j => j.id === matchId);
+            if(!jogo) return;
+
+            document.getElementById('input-match-id').value = matchId;
+            document.getElementById('modal-match-phase').innerText = jogo.phase;
+            document.getElementById('label-duplaA').innerText = jogo.duplaA;
+            document.getElementById('label-duplaB').innerText = jogo.duplaB;
+            document.getElementById('input-scoreA').value = jogo.placarA !== null ? jogo.placarA : "";
+            document.getElementById('input-scoreB').value = jogo.placarB !== null ? jogo.placarB : "";
+
+            toggleModal('modal-match-score', true);
+        }
+
+        function submitNewDupla(event) {
+            event.preventDefault();
+            const p1 = document.getElementById('input-p1').value.trim();
+            const p2 = document.getElementById('input-p2').value.trim();
+            const categoria = document.getElementById('select-cat').value;
+
+            const nomeCompletoDupla = `${p1} e ${p2}`;
+            const novoId = String(state.duplas.length + 1).padStart(2, '0');
+
+            TournamentService.addDupla({
+                id: novoId,
+                nome: nomeCompletoDupla,
+                jogador1: p1,
+                jogador2: p2,
+                categoria: categoria,
+                status: "Ativo"
+            });
+            
+            document.getElementById('form-add-dupla').reset();
+            toggleModal('modal-add-dupla', false);
+            renderDuplasTable();
+            populateManualSelects();
+            updateDashboardMetrics();
+        }
+
+        function submitMatchScore(event) {
+            event.preventDefault();
+            const id = document.getElementById('input-match-id').value;
+            const scoreA = parseInt(document.getElementById('input-scoreA').value, 10);
+            const scoreB = parseInt(document.getElementById('input-scoreB').value, 10);
+
+            if(scoreA === scoreB) {
+                alert("Futevôlei não aceita empate! Defina um vencedor.");
+                return;
+            }
+
+            TournamentService.updateJogoScore(id, scoreA, scoreB);
+            toggleModal('modal-match-score', false);
+            renderJogosSection();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDatabase();
+            updateDashboardMetrics();
+            populateManualSelects();
+        });
+    </script>
+</body>
+</html>
